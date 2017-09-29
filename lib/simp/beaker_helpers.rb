@@ -99,10 +99,14 @@ module Simp::BeakerHelpers
 
   # Returns the modulepath on the SUT, as an Array
   def puppet_modulepath_on(sut, environment='production')
-    splitchar = ':'
-    splitchar = ';' if is_windows?(sut)
-
-    sut.puppet_configprint['modulepath'].split(splitchar)
+    result = on(
+      sut, "puppet config print modulepath --environment #{environment}"
+    ).output.lines.last.strip
+    if (result == /;/)
+	    result.split(";")
+    else
+	    result.split(":")
+    end
   end
 
   # Return the path to the 'spec/fixtures' directory
@@ -205,9 +209,9 @@ module Simp::BeakerHelpers
           # cannot rely on `copy_module_to()` to choose a sane default for
           # `target_module_path`.  This workaround queries each SUT's
           # `modulepath` and targets the first one.
-          target_module_path = puppet_modulepath_on(sut).first
 	  require 'pry'
 	  binding.pry
+          target_module_path = puppet_modulepath_on(sut).first
           environment_root = File.expand_path( "spec/fixtures/modules", File.dirname( fixtures_yml_path ))
 
           Dir.chdir(mod_root) do
