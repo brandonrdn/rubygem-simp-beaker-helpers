@@ -248,9 +248,11 @@ module Simp::BeakerHelpers
               end
           Dir.chdir(environment_root) do
             begin
-		Dir.entries(environment_root) do |mod|
-              		copy_to(sut, mod, target_module_path, opts)
-		end
+		    Dir.entries(environment_root).each do |mod|
+			unless (mod =~ /\./)
+	              		copy_to(sut, mod, target_module_path, opts)
+			end
+		    end
             end
           end
         end
