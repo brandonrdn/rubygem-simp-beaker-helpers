@@ -207,7 +207,7 @@ module Simp::BeakerHelpers
           # `modulepath` and targets the first one.
           target_module_path = puppet_modulepath_on(sut).first
 
-          mod_root = File.expand_path( "spec/fixtures/modules", File.dirname( fixtures_yml_path ))
+          environment_root = File.expand_path( "spec/fixtures/modules", File.dirname( fixtures_yml_path ))
 
           Dir.chdir(mod_root) do
             # Have to do things the slow way on Windows
@@ -241,6 +241,13 @@ module Simp::BeakerHelpers
               ensure
                 FileUtils.remove_entry(tarfile, true)
               end
+          Dir.chdir(environment_root) do
+            begin
+		Dir.entries(environment_root) do |mod|
+              		copy_to(sut, mod, target_module_path, opts)
+		end
+            ensure
+              FileUtils.remove_entry(tarfile, true)
             end
           end
         end
