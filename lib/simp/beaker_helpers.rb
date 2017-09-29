@@ -196,7 +196,7 @@ module Simp::BeakerHelpers
     ensure_fixture_modules
 
     opts[:pluginsync] = opts.fetch(:pluginsync, true)
-
+    opts = { :ignore => PUPPET_MODULE_INSTALL_IGNORE}.merge(opts)
     unless ENV['BEAKER_copy_fixtures'] == 'no'
       parallel = (ENV['BEAKER_SIMP_parallel'] == 'yes')
       block_on(suts, :run_in_parallel => parallel) do |sut|
