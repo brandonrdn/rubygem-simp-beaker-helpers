@@ -935,6 +935,15 @@ done
     PLUGINSYNC_MANIFEST
     parallel = (ENV['BEAKER_SIMP_parallel'] == 'yes')
     apply_manifest_on(hosts, pluginsync_manifest, :run_in_parallel => parallel)
+    Array(suts).each do |sut|
+      puts "  ** pluginsync_on: '#{sut}'" if ENV['BEAKER_helpers_verbose']
+      fact_path = on(sut, %q(puppet config print factpath)).output.strip.split(':').first
+      on(sut, %q(puppet config print modulepath)).output.strip.split(':').each do |mod_path|
+        sut.mkdir_p(fact_path)
+        next if on(sut, "ls #{mod_path}/*/lib/facter 2>/dev/null ", :accept_all_exit_codes => true).exit_code != 0
+        on(sut, %Q(find #{mod_path}/*/lib/facter -type f -name '*.rb' -exec cp -a {} '#{fact_path}/' \\; ))
+      end
+    end
   end
 
 
